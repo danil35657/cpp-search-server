@@ -73,7 +73,7 @@ set<string> MakeUniqueNonEmptyStrings(const StringContainer& strings) {
             non_empty_strings.insert(str);
         }
         if (!IsValidWord(str)) {
-            throw invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥: "s + str);
+            throw invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§: "s + str);
         }
     }
     return non_empty_strings;
@@ -100,11 +100,11 @@ public:
 
     void AddDocument (int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
         if (document_id < 0) {
-            throw invalid_argument("ID –Ω–µ –º–æ–∂–µ—Ç –±—ã—Ç—å –æ—Ç—Ä–∏—Ü–∞—Ç–µ–ª—å–Ω—ã–º"s);
+            throw invalid_argument("ID ≠• ¨Æ¶•‚ °Î‚Ï Æ‚‡®Ê†‚•´Ï≠Î¨"s);
         } else if (documents_.count(document_id)) {
-            throw invalid_argument("–¥–æ–∫—É–º–µ–Ω—Ç —Å —Ç–∞–∫–∏–º ID —É–∂–µ –µ—Å—Ç—å"s);
+            throw invalid_argument("§Æ™„¨•≠‚ · ‚†™®¨ ID „¶• •·‚Ï"s);
         } else if (!IsValidWord(document)) {
-            throw invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥"s);
+            throw invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§"s);
         }
         const vector<string> words = SplitIntoWordsNoStop(document);
         const double inv_word_count = 1.0 / words.size();
@@ -172,7 +172,7 @@ public:
 
     int GetDocumentId(int index) const {
         if (index < 0 || index >= documents_.size()) {
-            throw out_of_range("–î–æ–∫—É–º–µ–Ω—Ç —Å —Ç–∞–∫–∏–º –∏–Ω–¥–µ–∫—Å–æ–º –æ—Ç—Å—É—Ç—Å—Ç–≤—É–µ—Ç"s);
+            throw out_of_range("ÑÆ™„¨•≠‚ · ‚†™®¨ ®≠§•™·Æ¨ Æ‚·„‚·‚¢„•‚"s);
         }
         return document_ids_[index];
     }
@@ -218,7 +218,7 @@ private:
         bool is_minus = false;
         for (char c : text) {
             if (c >= '\0' && c < ' ') {
-                throw invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥"s);
+                throw invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§"s);
             }
         }
         if (text[0] == '-') {
@@ -226,7 +226,7 @@ private:
             text = text.substr(1);
         }
         if (text[0] == '-' || text.empty()) {
-            throw invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥"s);
+            throw invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§"s);
         }
         return {text, is_minus, IsStopWord(text)};
     }
@@ -289,6 +289,61 @@ private:
 
 };
 
+template <typename It> // 1.19.9 ¢Î¢Æ§ ·‚‡†≠®Ê†¨® ·‚‡†≠®Ê†¨®
+class Paginator {
+
+public:
+
+    Paginator() = default;
+
+    Paginator(It range_begin, It range_end, size_t page_size) : page_size_(page_size) {
+        size_t a = 0;
+		vector<Document> v;
+		for (auto it = range_begin; it != range_end; ++it) {
+			v.push_back(*it);
+			++a;
+			if (a == page_size_ || it == range_end - 1) {
+				documents_.push_back(v);
+				v.clear();
+				a = 0;
+			}
+		}
+    } 
+
+    auto begin() const {
+        return documents_.begin();
+    }
+
+    auto end() const {
+        return documents_.end();
+    }
+
+private:
+    vector<vector<Document>> documents_;
+    size_t page_size_;
+}; 
+
+ostream& operator<<(ostream& output, Document document) { // 1.19.9 ¢Î¢Æ§ ·‚‡†≠®Ê†¨®
+	output << "{ "s
+	<< "document_id = "s << document.id << ", "s
+	<< "relevance = "s << document.relevance << ", "s
+	<< "rating = "s << document.rating << " }"s;
+	return output;
+}
+	
+template <typename Element> // 1.19.9 ¢Î¢Æ§ ·‚‡†≠®Ê†¨®
+ostream& operator<<(ostream& output, vector<Element> v) {
+	for (auto document : v) {
+		output << document;
+	}
+return output;
+}
+
+template <typename Container> // 1.19.9 ¢Î¢Æ§ ·‚‡†≠®Ê†¨®
+auto Paginate(const Container& c, size_t page_size) {
+    return Paginator(begin(c), end(c), page_size);
+}
+
 template <typename T, typename U>
 void AssertEqualImpl(const T& t, const U& u, const string& t_str, const string& u_str, const string& file, const string& func, unsigned line, const string& hint) {
     if (t != u) {
@@ -325,17 +380,17 @@ void AssertImpl(bool value, const string& expr_str, const string& file, const st
 #define ASSERT_HINT(expr, hint) AssertImpl(expr, #expr, __FILE__, __FUNCTION__, __LINE__, hint)
 
 void TestAddAndFindDocument() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
     {
-    vector<Document> v = server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π"s);
+    vector<Document> v = server.FindTopDocuments("Ø„Ë®·‚Î©"s);
     ASSERT_EQUAL(v.size(), 1);
     ASSERT_EQUAL(v[0].id, 1);
     ASSERT_EQUAL(v[0].rating, 5);
     }
     {
-    vector<Document> v = server.FindTopDocuments("–∫–æ—Ç"s);
+    vector<Document> v = server.FindTopDocuments("™Æ‚"s);
     ASSERT_EQUAL(v.size(), 2);
     ASSERT_EQUAL(v[0].rating, 5);
     ASSERT_EQUAL(v[1].rating, 3);
@@ -343,81 +398,81 @@ void TestAddAndFindDocument() {
 }
 
 void TestExclusionOfStopWords() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
     ASSERT_HINT(server.FindTopDocuments("in"s).empty(), "Stop words must be excluded from documents"s);
 }
 
 void TestSupportForMinusWords() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
-    vector<Document> v = server.FindTopDocuments("–∫–æ—Ç -–±–µ–ª—ã–π"s);
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    vector<Document> v = server.FindTopDocuments("™Æ‚ -°•´Î©"s);
     ASSERT_EQUAL(v.size(), 1);
     ASSERT_EQUAL(v[0].id, 1);
     ASSERT_EQUAL(v[0].rating, 5);
 }
 
 void TestSortByRelevance() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
-    vector<Document> v = server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç"s);
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    vector<Document> v = server.FindTopDocuments("Ø„Ë®·‚Î© ™Æ‚"s);
     ASSERT_EQUAL(v.size(), 2);
     ASSERT(v[1].relevance <= v[0].relevance);
     ASSERT_EQUAL(v[1].id, 0);
 }
 
 void TestComputeRating() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
-    vector<Document> v = server.FindTopDocuments("–∫–æ—Ç"s);
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    vector<Document> v = server.FindTopDocuments("™Æ‚"s);
     ASSERT_EQUAL(v[0].rating, 5);
     ASSERT_EQUAL(v[1].rating, 3);
 }
 
 void TestFilteringByPredicate() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,      DocumentStatus::ACTUAL, {7, 2, 6});
-    vector<Document> v = server.FindTopDocuments("–∫–æ—Ç"s, [](int, DocumentStatus, int rating) {
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,      DocumentStatus::ACTUAL, {7, 2, 6});
+    vector<Document> v = server.FindTopDocuments("™Æ‚"s, [](int, DocumentStatus, int rating) {
         return rating >= 4; });
     ASSERT_EQUAL(v.size(), 1);
     ASSERT_EQUAL(v[0].id, 1);
 }
 
 void TestSearchByStatus() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,      DocumentStatus::ACTUAL, {7, 2, 6});
-    server.AddDocument(2, "—Å–µ—Ä—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::BANNED, {8, -3});
-    server.AddDocument(3, "–±–µ–ª—ã–π –ø–µ—Å —á–µ—Ä–Ω—ã–π —Ö–≤–æ—Å—Ç"s,           DocumentStatus::BANNED, {7, 2, 7});
-    server.AddDocument(4, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π –∫–æ—Ç –≤—ã—Ä–∞–∑–∏—Ç–µ–ª—å–Ω—ã–µ –≥–ª–∞–∑–∞"s,DocumentStatus::BANNED, {5, -12, 2, 1});
-    server.AddDocument(5, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π —Å–∫–≤–æ—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s,        DocumentStatus::IRRELEVANT, {9});
-    server.AddDocument(6, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π –ø–µ—Å –≤—ã—Ä–∞–∑–∏—Ç–µ–ª—å–Ω—ã–µ –≥–ª–∞–∑–∞"s,DocumentStatus::REMOVED, {5, -1, 2, 1});
-    server.AddDocument(7, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π —Å–∫–≤–æ—Ä–µ—Ü –≥–µ–Ω–Ω–∞–¥–∏–π"s,       DocumentStatus::REMOVED, {6});
-    vector<Document> a = server.FindTopDocuments("–∫–æ—Ç"s, DocumentStatus::ACTUAL);
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,      DocumentStatus::ACTUAL, {7, 2, 6});
+    server.AddDocument(2, "·•‡Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::BANNED, {8, -3});
+    server.AddDocument(3, "°•´Î© Ø•· Á•‡≠Î© Â¢Æ·‚"s,           DocumentStatus::BANNED, {7, 2, 7});
+    server.AddDocument(4, "„ÂÆ¶•≠≠Î© ™Æ‚ ¢Î‡†ß®‚•´Ï≠Î• £´†ß†"s,DocumentStatus::BANNED, {5, -12, 2, 1});
+    server.AddDocument(5, "„ÂÆ¶•≠≠Î© ·™¢Æ‡•Ê •¢£•≠®©"s,        DocumentStatus::IRRELEVANT, {9});
+    server.AddDocument(6, "„ÂÆ¶•≠≠Î© Ø•· ¢Î‡†ß®‚•´Ï≠Î• £´†ß†"s,DocumentStatus::REMOVED, {5, -1, 2, 1});
+    server.AddDocument(7, "„ÂÆ¶•≠≠Î© ·™¢Æ‡•Ê £•≠≠†§®©"s,       DocumentStatus::REMOVED, {6});
+    vector<Document> a = server.FindTopDocuments("™Æ‚"s, DocumentStatus::ACTUAL);
     ASSERT_EQUAL(a.size(), 2);
     ASSERT_EQUAL(a[0].id, 1);
-    vector<Document> b = server.FindTopDocuments("–∫–æ—Ç"s, DocumentStatus::BANNED);
+    vector<Document> b = server.FindTopDocuments("™Æ‚"s, DocumentStatus::BANNED);
     ASSERT_EQUAL(b.size(), 2);
     ASSERT_EQUAL(b[0].id, 4);
-    vector<Document> i = server.FindTopDocuments("—Å–∫–≤–æ—Ä–µ—Ü"s, DocumentStatus::IRRELEVANT);
+    vector<Document> i = server.FindTopDocuments("·™¢Æ‡•Ê"s, DocumentStatus::IRRELEVANT);
     ASSERT_EQUAL(i.size(), 1);
     ASSERT_EQUAL(i[0].id, 5);
-    vector<Document> r = server.FindTopDocuments("–ø–µ—Å"s, DocumentStatus::REMOVED);
+    vector<Document> r = server.FindTopDocuments("Ø•·"s, DocumentStatus::REMOVED);
     ASSERT_EQUAL(r.size(), 1);
     ASSERT_EQUAL(r[0].id, 6);
 }
 
 void TestCalculatingRelevance() {
-    SearchServer server("–∏ –≤ –Ω–∞"s);
-    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::ACTUAL, {8, -3});
-    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,      DocumentStatus::ACTUAL, {7, 2, 7});
-    server.AddDocument(2, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π –ø—ë—Å –≤—ã—Ä–∞–∑–∏—Ç–µ–ª—å–Ω—ã–µ –≥–ª–∞–∑–∞"s,DocumentStatus::ACTUAL, {5, -12, 2, 1});
-    server.AddDocument(3, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π —Å–∫–≤–æ—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s,        DocumentStatus::BANNED, {9});
-    vector<Document> v = server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π —É—Ö–æ–∂–µ–Ω–Ω—ã–π –∫–æ—Ç"s);
+    SearchServer server("® ¢ ≠†"s);
+    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::ACTUAL, {8, -3});
+    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,      DocumentStatus::ACTUAL, {7, 2, 7});
+    server.AddDocument(2, "„ÂÆ¶•≠≠Î© ØÒ· ¢Î‡†ß®‚•´Ï≠Î• £´†ß†"s,DocumentStatus::ACTUAL, {5, -12, 2, 1});
+    server.AddDocument(3, "„ÂÆ¶•≠≠Î© ·™¢Æ‡•Ê •¢£•≠®©"s,        DocumentStatus::BANNED, {9});
+    vector<Document> v = server.FindTopDocuments("Ø„Ë®·‚Î© „ÂÆ¶•≠≠Î© ™Æ‚"s);
     ASSERT(abs(v[0].relevance - 0.866434) < EPSILON);
     ASSERT(abs(v[1].relevance - 0.173287) < EPSILON);
 }
@@ -433,7 +488,7 @@ void TestSearchServer() {
     TestCalculatingRelevance();
 }
 
-// ==================== –¥–ª—è –ø—Ä–∏–º–µ—Ä–∞ =========================
+// ==================== §´Ô Ø‡®¨•‡† =========================
 
 void PrintDocument(const Document& document) {
     cout << "{ "s
@@ -457,24 +512,24 @@ void AddDocument(SearchServer& search_server, int document_id, const string& doc
     try {
         search_server.AddDocument(document_id, document, status, ratings);
     } catch (const exception& e) {
-        cout << "–û—à–∏–±–∫–∞ –¥–æ–±–∞–≤–ª–µ–Ω–∏—è –¥–æ–∫—É–º–µ–Ω—Ç–∞ "s << document_id << ": "s << e.what() << endl;
+        cout << "éË®°™† §Æ°†¢´•≠®Ô §Æ™„¨•≠‚† "s << document_id << ": "s << e.what() << endl;
     }
 }
 
 void FindTopDocuments(const SearchServer& search_server, const string& raw_query) {
-    cout << "–†–µ–∑—É–ª—å—Ç–∞—Ç—ã –ø–æ–∏—Å–∫–∞ –ø–æ –∑–∞–ø—Ä–æ—Å—É: "s << raw_query << endl;
+    cout << "ê•ß„´Ï‚†‚Î ØÆ®·™† ØÆ ß†Ø‡Æ·„: "s << raw_query << endl;
     try {
         for (const Document& document : search_server.FindTopDocuments(raw_query)) {
             PrintDocument(document);
         }
     } catch (const exception& e) {
-        cout << "–û—à–∏–±–∫–∞ –ø–æ–∏—Å–∫–∞: "s << e.what() << endl;
+        cout << "éË®°™† ØÆ®·™†: "s << e.what() << endl;
     }
 }
 
 void MatchDocuments(const SearchServer& search_server, const string& query) {
     try {
-        cout << "–ú–∞—Ç—á–∏–Ω–≥ –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ –ø–æ –∑–∞–ø—Ä–æ—Å—É: "s << query << endl;
+        cout << "å†‚Á®≠£ §Æ™„¨•≠‚Æ¢ ØÆ ß†Ø‡Æ·„: "s << query << endl;
         const int document_count = search_server.GetDocumentCount();
         for (int index = 0; index < document_count; ++index) {
             const int document_id = search_server.GetDocumentId(index);
@@ -482,25 +537,46 @@ void MatchDocuments(const SearchServer& search_server, const string& query) {
             PrintMatchDocumentResult(document_id, words, status);
         }
     } catch (const exception& e) {
-        cout << "–û—à–∏–±–∫–∞ –º–∞—Ç—á–∏–Ω–≥–∞ –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ –Ω–∞ –∑–∞–ø—Ä–æ—Å "s << query << ": "s << e.what() << endl;
+        cout << "éË®°™† ¨†‚Á®≠£† §Æ™„¨•≠‚Æ¢ ≠† ß†Ø‡Æ· "s << query << ": "s << e.what() << endl;
     }
 }
 
 int main() {
-    SearchServer search_server("–∏ –≤ –Ω–∞"s);
+    SearchServer search_server("® ¢ ≠†"s);
 
-    AddDocument(search_server,  1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,     DocumentStatus::ACTUAL, {7, 2, 7});
-    AddDocument(search_server,  1, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,   DocumentStatus::ACTUAL, {1, 2});
-    AddDocument(search_server, -1, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,   DocumentStatus::ACTUAL, {1, 2});
-    AddDocument(search_server,  3, "–±–æ–ª—å—à–æ–π –ø—ë—Å —Å–∫–≤–æ\x12—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s, DocumentStatus::ACTUAL, {1, 3, 2});
-    AddDocument(search_server,  4, "–±–æ–ª—å—à–æ–π –ø—ë—Å —Å–∫–≤–æ—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s,     DocumentStatus::ACTUAL, {1, 1, 1});
+    AddDocument(search_server,  1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,     DocumentStatus::ACTUAL, {7, 2, 7});
+    AddDocument(search_server,  1, "Ø„Ë®·‚Î© ØÒ· ® ¨Æ§≠Î© ÆË•©≠®™"s,   DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, -1, "Ø„Ë®·‚Î© ØÒ· ® ¨Æ§≠Î© ÆË•©≠®™"s,   DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server,  3, "°Æ´ÏËÆ© ØÒ· ·™¢Æ\x12‡•Ê •¢£•≠®©"s, DocumentStatus::ACTUAL, {1, 3, 2});
+    AddDocument(search_server,  4, "°Æ´ÏËÆ© ØÒ· ·™¢Æ‡•Ê •¢£•≠®©"s,     DocumentStatus::ACTUAL, {1, 1, 1});
 
-    FindTopDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π -–ø—ë—Å"s);
-    FindTopDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π --–∫–æ—Ç"s);
-    FindTopDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π -"s);
+    FindTopDocuments(search_server, "Ø„Ë®·‚Î© -ØÒ·"s);
+    FindTopDocuments(search_server, "Ø„Ë®·‚Î© --™Æ‚"s);
+    FindTopDocuments(search_server, "Ø„Ë®·‚Î© -"s);
 
-    MatchDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å"s);
-    MatchDocuments(search_server, "–º–æ–¥–Ω—ã–π -–∫–æ—Ç"s);
-    MatchDocuments(search_server, "–º–æ–¥–Ω—ã–π --–ø—ë—Å"s);
-    MatchDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π - —Ö–≤–æ—Å—Ç"s);
+    MatchDocuments(search_server, "Ø„Ë®·‚Î© ØÒ·"s);
+    MatchDocuments(search_server, "¨Æ§≠Î© -™Æ‚"s);
+    MatchDocuments(search_server, "¨Æ§≠Î© --ØÒ·"s);
+    MatchDocuments(search_server, "Ø„Ë®·‚Î© - Â¢Æ·‚"s);
 }
+
+
+/* int main() { // 1.19.9 Ø‡Æ¢•‡™† ¢Î¢Æ§† ·‚‡†≠®Ê†¨®
+    SearchServer search_server("and with"s);
+
+    search_server.AddDocument(1, "funny pet and nasty rat"s, DocumentStatus::ACTUAL, {7, 2, 7});
+    search_server.AddDocument(2, "funny pet with curly hair"s, DocumentStatus::ACTUAL, {1, 2, 3});
+    search_server.AddDocument(3, "big cat nasty hair"s, DocumentStatus::ACTUAL, {1, 2, 8});
+    search_server.AddDocument(4, "big dog cat Vladislav"s, DocumentStatus::ACTUAL, {1, 3, 2});
+    search_server.AddDocument(5, "big dog hamster Borya"s, DocumentStatus::ACTUAL, {1, 1, 1});
+
+    const auto search_results = search_server.FindTopDocuments("curly dog"s);
+    int page_size = 2;
+    const auto pages = Paginate(search_results, page_size);
+
+    // ÇÎ¢Æ§®¨ ≠†©§•≠≠Î• §Æ™„¨•≠‚Î ØÆ ·‚‡†≠®Ê†¨
+    for (auto page = pages.begin(); page != pages.end(); ++page) {
+        cout << *page << endl;
+        cout << "Page break"s << endl;
+    }
+}  */
