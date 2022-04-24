@@ -10,6 +10,7 @@
 #include <optional>
 #include <stdexcept>
 #include <numeric>
+#include <queue>
 
 using namespace std;
 
@@ -344,6 +345,50 @@ auto Paginate(const Container& c, size_t page_size) {
     return Paginator(begin(c), end(c), page_size);
 }
 
+class RequestQueue {
+public:
+    explicit RequestQueue(const SearchServer& search_server) : search_server_(search_server){}
+
+    template <typename DocumentPredicate>
+    vector<Document> AddFindRequest(const string& raw_query, DocumentPredicate document_predicate) {
+        vector<Document> v = search_server_.FindTopDocuments(raw_query, document_predicate);
+		QueryResult query;
+		query.size = v.size();
+		if (requests_.size() == min_in_day_) {
+			requests_.pop_front();
+		}
+		requests_.push_back(query);
+        return v;
+    }
+
+    vector<Document> AddFindRequest(const string& raw_query, DocumentStatus status) {
+        return AddFindRequest(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
+            return document_status == status;
+        });
+    }
+
+    vector<Document> AddFindRequest(const string& raw_query) {
+        return AddFindRequest(raw_query, DocumentStatus::ACTUAL);
+    }
+
+    int GetNoResultRequests() const {
+        int n = 0;
+		for (auto a : requests_) {
+			if (a.size == 0) {
+				++n;
+			}
+		}
+		return n;
+    }
+private:
+    struct QueryResult {
+        size_t size;
+    };
+    deque<QueryResult> requests_;
+    const static int min_in_day_ = 1440;
+    const SearchServer& search_server_;
+}; 
+
 template <typename T, typename U>
 void AssertEqualImpl(const T& t, const U& u, const string& t_str, const string& u_str, const string& file, const string& func, unsigned line, const string& hint) {
     if (t != u) {
@@ -541,7 +586,7 @@ void MatchDocuments(const SearchServer& search_server, const string& query) {
     }
 }
 
-int main() {
+/* int main() { // для проверки основных методов
     SearchServer search_server("и в на"s);
 
     AddDocument(search_server,  1, "пушистый кот пушистый хвост"s,     DocumentStatus::ACTUAL, {7, 2, 7});
@@ -558,7 +603,7 @@ int main() {
     MatchDocuments(search_server, "модный -кот"s);
     MatchDocuments(search_server, "модный --пёс"s);
     MatchDocuments(search_server, "пушистый - хвост"s);
-}
+} */
 
 
 /* int main() { // 1.19.9 проверка вывода страницами
@@ -580,3 +625,24 @@ int main() {
         cout << "Page break"s << endl;
     }
 }  */
+
+int main() { // проверка очереди запросов
+    SearchServer search_server("and in at"s);
+    RequestQueue request_queue(search_server);
+
+    search_server.AddDocument(1, "curly cat curly tail"s, DocumentStatus::ACTUAL, {7, 2, 7});
+    search_server.AddDocument(2, "curly dog and fancy collar"s, DocumentStatus::ACTUAL, {1, 2, 3});
+    search_server.AddDocument(3, "big cat fancy collar "s, DocumentStatus::ACTUAL, {1, 2, 8});
+    search_server.AddDocument(4, "big dog sparrow Eugene"s, DocumentStatus::ACTUAL, {1, 3, 2});
+    search_server.AddDocument(5, "big dog sparrow Vasiliy"s, DocumentStatus::ACTUAL, {1, 1, 1});
+
+    for (int i = 0; i < 1439; ++i) {
+        request_queue.AddFindRequest("empty request"s);
+    }
+	
+    request_queue.AddFindRequest("curly dog"s);
+    request_queue.AddFindRequest("big collar"s);
+    request_queue.AddFindRequest("sparrow"s);
+    cout << "Total empty requests: "s << request_queue.GetNoResultRequests() << endl;
+    return 0;
+} 
