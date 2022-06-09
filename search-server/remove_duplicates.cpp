@@ -2,30 +2,24 @@
 
 
 void RemoveDuplicates(SearchServer& search_server) {
-    std::set<int> s;
+    std::set<int> duplicate_numbers;
+    std::set<std::set<std::string>> set_without_duplicates;
+    
     for (auto it = search_server.begin(); it != search_server.end(); ++it) {
-        auto a = search_server.GetWordFrequencies(*it);
-        for (auto iter = next(it); iter != search_server.end(); ++iter) {
-            auto b = search_server.GetWordFrequencies(*iter);
-            if (a.size() != b.size()) {
-                continue;
-            }
-            auto c = a.begin();
-            auto d = b.begin();
-            for (int n = 0; n < a.size(); ++n) {
-                if (c->first != d->first) {
-                    break;
-                }
-                c = next(c);
-                d = next(d);
-            }
-            if (c == a.end()) {
-                s.emplace(*iter);
-            }
+        std::set<std::string> check_set;
+        const auto& check_document = search_server.GetWordFrequencies(*it);
+        for (const auto word : check_document) {
+            check_set.emplace(word.first);
+        }
+        if (set_without_duplicates.count(check_set) == 0) {
+            set_without_duplicates.emplace(check_set);
+        } else {
+            duplicate_numbers.emplace(*it);
         }
     }
-    for (const int a : s) {
-        std::cout << "Found duplicate document id "s << a << std::endl;
-        search_server.RemoveDocument(a);
+    
+    for (const int duplicate_number : duplicate_numbers) {
+        std::cout << "Found duplicate document id "s << duplicate_number << std::endl;
+        search_server.RemoveDocument(duplicate_number);
     }
 }

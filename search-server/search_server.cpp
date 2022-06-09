@@ -28,17 +28,14 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
 }
 
 void SearchServer::RemoveDocument(int document_id) {
-    if (document_id < 0) {
-        throw std::invalid_argument("ID не может быть отрицательным"s);
-    } else if (!documents_.count(document_id)) {
-        throw std::invalid_argument("документ с таким ID отсутствует"s);
+    if (documents_.count(document_id) != 0) {
+        for (const auto& [word, frequency] : word_freqs_.at(document_id)) {
+            word_to_document_freqs_.erase(word);
+        }
+        word_freqs_.erase(document_id);
+        documents_.erase(document_id);
+        document_ids_.erase(document_id);
     }
-    for (auto a : word_freqs_.at(document_id)) {
-        word_to_document_freqs_.erase(a.first);
-    }
-    word_freqs_.erase(document_id);
-    documents_.erase(document_id);
-    document_ids_.erase(document_id);
 }
 
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query) const {

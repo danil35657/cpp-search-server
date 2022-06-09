@@ -52,14 +52,6 @@ void AddDocument(SearchServer& search_server, int document_id, const std::string
     }
 }
 
-void RemoveDocument(SearchServer& search_server, int document_id) {
-    try {
-        search_server.RemoveDocument(document_id);
-    } catch (const std::exception& e) {
-        std::cout << "Ошибка удаления документа "s << document_id << ": "s << e.what() << std::endl;
-    }
-}
-
 void FindTopDocuments(const SearchServer& search_server, const std::string& raw_query) {
     LOG_DURATION_STREAM("Operation time"s, std::cout);
     std::cout << "Результаты поиска по запросу: "s << raw_query << std::endl;
