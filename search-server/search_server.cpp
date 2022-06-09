@@ -28,7 +28,7 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
 }
 
 void SearchServer::RemoveDocument(int document_id) {
-    if (documents_.count(document_id) != 0) {
+    if (documents_.count(document_id)) {
         for (const auto& [word, frequency] : word_freqs_.at(document_id)) {
             word_to_document_freqs_.erase(word);
         }
@@ -47,12 +47,11 @@ int SearchServer::GetDocumentCount() const {
 }
 
 const std::map<std::string, double>& SearchServer::GetWordFrequencies(int document_id) const {
-    static std::map<std::string, double> frequencis;
+    static const std::map<std::string, double> frequencis;
     if (word_freqs_.count(document_id)) {
         return word_freqs_.at(document_id);
-    } else {
-        return frequencis;
     }
+    return frequencis;
 }
 
 std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(const std::string& raw_query, int document_id) const {
