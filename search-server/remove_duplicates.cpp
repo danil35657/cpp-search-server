@@ -5,16 +5,16 @@ void RemoveDuplicates(SearchServer& search_server) {
     std::set<int> duplicate_numbers;
     std::set<std::set<std::string>> set_without_duplicates;
     
-    for (auto it = search_server.begin(); it != search_server.end(); ++it) {
+    for (const int document_id : search_server) {
         std::set<std::string> check_set;
-        const auto& check_document = search_server.GetWordFrequencies(*it);
+        const auto& check_document = search_server.GetWordFrequencies(document_id);
         for (const auto word : check_document) {
             check_set.emplace(word.first);
         }
         if (set_without_duplicates.count(check_set) == 0) {
             set_without_duplicates.emplace(check_set);
         } else {
-            duplicate_numbers.emplace(*it);
+            duplicate_numbers.emplace(document_id);
         }
     }
     
