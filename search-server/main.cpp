@@ -18,7 +18,9 @@
 #include "search_server.h"
 #include "paginator.h"
 #include "request_queue.h"
-#include "tests.h"
+#include "test_example_functions.h"
+#include "log_duration.h"
+#include "remove_duplicates.h"
 
 using std::literals::string_literals::operator""s;
 
@@ -50,7 +52,16 @@ void AddDocument(SearchServer& search_server, int document_id, const std::string
     }
 }
 
+void RemoveDocument(SearchServer& search_server, int document_id) {
+    try {
+        search_server.RemoveDocument(document_id);
+    } catch (const std::exception& e) {
+        std::cout << "Ошибка удаления документа "s << document_id << ": "s << e.what() << std::endl;
+    }
+}
+
 void FindTopDocuments(const SearchServer& search_server, const std::string& raw_query) {
+    LOG_DURATION_STREAM("Operation time"s, std::cout);
     std::cout << "Результаты поиска по запросу: "s << raw_query << std::endl;
     try {
         for (const Document& document : search_server.FindTopDocuments(raw_query)) {
@@ -62,11 +73,10 @@ void FindTopDocuments(const SearchServer& search_server, const std::string& raw_
 }
 
 void MatchDocuments(const SearchServer& search_server, const std::string& query) {
+    LOG_DURATION_STREAM("Operation time"s, std::cout);
     try {
         std::cout << "Матчинг документов по запросу: "s << query << std::endl;
-        const int document_count = search_server.GetDocumentCount();
-        for (int index = 0; index < document_count; ++index) {
-            const int document_id = search_server.GetDocumentId(index);
+        for (const int document_id : search_server) {
             const auto [words, status] = search_server.MatchDocument(query, document_id);
             PrintMatchDocumentResult(document_id, words, status);
         }
@@ -76,7 +86,7 @@ void MatchDocuments(const SearchServer& search_server, const std::string& query)
 }
 
 int main() {
-    //тесты
+    // тесты
     TestSearchServer();
     
     // проверка основных методов SearchServer
@@ -99,9 +109,9 @@ int main() {
     
     // проверка вывода страницами
     std::cout << std::endl;
-    search_server.AddDocument(2, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2, 3});
-    search_server.AddDocument(3, "большой кот модный ошейник "s, DocumentStatus::ACTUAL, {1, 2, 8});
-    search_server.AddDocument(5, "большой пёс скворец василий"s, DocumentStatus::ACTUAL, {1, 1, 1});
+    AddDocument(search_server, 2, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2, 3});
+    AddDocument(search_server, 3, "большой кот модный ошейник "s,   DocumentStatus::ACTUAL, {1, 2, 8});
+    AddDocument(search_server, 5, "большой пёс скворец василий"s,   DocumentStatus::ACTUAL, {1, 1, 1});
     
     const auto search_results = search_server.FindTopDocuments("пушистый пёс"s);
     int page_size = 2;
@@ -123,5 +133,14 @@ int main() {
     request_queue.AddFindRequest("большой ошейник"s);
     request_queue.AddFindRequest("скворец"s);
     std::cout << "Всего пустых запросов: "s << request_queue.GetNoResultRequests() << std::endl;
-    return 0;
-} 
+    
+    //проверка удаления дубликатов 
+    std::cout << std::endl;
+    AddDocument(search_server, 6, "пушистый кот пушистый пушистый хвост"s,   DocumentStatus::ACTUAL, {7, 2, 7});
+    AddDocument(search_server, 7, "большой кот модный модный ошейник "s,   DocumentStatus::ACTUAL, {1, 2, 8});
+    AddDocument(search_server, 8, "большой пёс скворец василий"s,   DocumentStatus::ACTUAL, {1, 1, 1});
+    std::cout << "До удаления дубликатов: "s << search_server.GetDocumentCount() << std::endl;
+    RemoveDuplicates(search_server);
+    std::cout << "После удаления дубликатов: "s << search_server.GetDocumentCount() << std::endl;
+    
+}  

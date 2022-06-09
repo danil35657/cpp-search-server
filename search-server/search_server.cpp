@@ -15,9 +15,10 @@ void SearchServer::AddDocument (int document_id, const std::string& document, Do
     const double inv_word_count = 1.0 / words.size();
     for (const std::string& word : words) {
         word_to_document_freqs_[word][document_id] += inv_word_count;
+        word_freqs_[document_id][word] += inv_word_count;
     }
     documents_.emplace(document_id, DocumentData{ComputeAverageRating(ratings), status});
-    document_ids_.push_back(document_id);
+    document_ids_.emplace(document_id);
 }
 
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, DocumentStatus status) const {
@@ -26,12 +27,35 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
         });
 }
 
+void SearchServer::RemoveDocument(int document_id) {
+    if (document_id < 0) {
+        throw std::invalid_argument("ID не может быть отрицательным"s);
+    } else if (!documents_.count(document_id)) {
+        throw std::invalid_argument("документ с таким ID отсутствует"s);
+    }
+    for (auto a : word_freqs_.at(document_id)) {
+        word_to_document_freqs_.erase(a.first);
+    }
+    word_freqs_.erase(document_id);
+    documents_.erase(document_id);
+    document_ids_.erase(document_id);
+}
+
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query) const {
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
 int SearchServer::GetDocumentCount() const {
     return documents_.size();
+}
+
+const std::map<std::string, double>& SearchServer::GetWordFrequencies(int document_id) const {
+    static std::map<std::string, double> frequencis;
+    if (word_freqs_.count(document_id)) {
+        return word_freqs_.at(document_id);
+    } else {
+        return frequencis;
+    }
 }
 
 std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(const std::string& raw_query, int document_id) const {
@@ -57,11 +81,12 @@ std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument
     return std::tuple(matched_words, documents_.at(document_id).status);
 }
 
-int SearchServer::GetDocumentId(int index) const {
-    if (index < 0 || index >= documents_.size()) {
-        throw std::out_of_range("Документ с таким индексом отсутствует"s);
-    }
-    return document_ids_[index];
+std::set<int>::const_iterator SearchServer::begin() const {
+    return document_ids_.begin();
+}
+    
+std::set<int>::const_iterator SearchServer::end() const {
+    return document_ids_.end();
 }
 
 bool SearchServer::IsStopWord(const std::string& word) const {
