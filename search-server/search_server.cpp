@@ -9,9 +9,11 @@ SearchServer::SearchServer(const std::string_view stop_words_text) : SearchServe
 void SearchServer::AddDocument (int document_id, const std::string_view document, DocumentStatus status, const std::vector<int>& ratings) {
     if (document_id < 0) {
         throw std::invalid_argument("ID не может быть отрицательным"s);
-    } else if (documents_.count(document_id)) {
+    }
+    if (documents_.count(document_id)) {
         throw std::invalid_argument("документ с таким ID уже есть"s);
-    } else if (!IsValidWord(document)) {
+    }
+    if (!IsValidWord(document)) {
         throw std::invalid_argument("Некорректный ввод"s);
     }
     const std::vector<std::string_view> words = SplitIntoWordsNoStop(document);
@@ -36,24 +38,28 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string_view raw_
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
-std::vector<Document> SearchServer::FindTopDocuments(std::execution::sequenced_policy policy, const std::string_view raw_query, DocumentStatus status) const {
+template <class ExecutionPolicy>
+std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy&& policy, const std::string_view raw_query, DocumentStatus status) const {
+    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::sequenced_policy>) {
         return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
             return document_status == status;
         });
-}
-
-std::vector<Document> SearchServer::FindTopDocuments(std::execution::sequenced_policy policy, const std::string_view raw_query) const {
-    return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
-}
-
-std::vector<Document> SearchServer::FindTopDocuments(std::execution::parallel_policy policy, const std::string_view raw_query, DocumentStatus status) const {
+    }
+    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>) {
         return FindTopDocuments(policy, raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
             return document_status == status;
         });
+    }
 }
 
-std::vector<Document> SearchServer::FindTopDocuments(std::execution::parallel_policy policy, const std::string_view raw_query) const {
-    return FindTopDocuments(policy, raw_query, DocumentStatus::ACTUAL);
+template <class ExecutionPolicy>
+std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy&& policy, const std::string_view raw_query) const {
+    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::sequenced_policy>) {
+        return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
+    }
+    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>) {
+        return FindTopDocuments(policy, raw_query, DocumentStatus::ACTUAL);
+    }
 }
 
 void SearchServer::RemoveDocument(int document_id) {
@@ -106,7 +112,9 @@ const std::map<std::string_view, double>& SearchServer::GetWordFrequencies(int d
     return frequencis;
 }
 
-std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(const std::string_view raw_query, int document_id) const {
+using matching_result = std::tuple<std::vector<std::string_view>, DocumentStatus>;
+
+matching_result SearchServer::MatchDocument(const std::string_view raw_query, int document_id) const {
     
     if (!documents_.count(document_id)) {
         throw std::out_of_range("Нет такого документа"s);
@@ -133,11 +141,11 @@ std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDoc
     return {matched_words, status};
 }
 
-std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(std::execution::sequenced_policy policy, const std::string_view raw_query, int document_id) const {
+matching_result SearchServer::MatchDocument(std::execution::sequenced_policy policy, const std::string_view raw_query, int document_id) const {
     return MatchDocument(raw_query, document_id);
 }
 
-std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(std::execution::parallel_policy policy, const std::string_view raw_query, int document_id) const {
+matching_result SearchServer::MatchDocument(std::execution::parallel_policy policy, const std::string_view raw_query, int document_id) const {
     
     if (!documents_.count(document_id)) {
         throw std::out_of_range("Нет такого документа"s);
