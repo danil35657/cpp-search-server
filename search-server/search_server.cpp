@@ -38,30 +38,6 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string_view raw_
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
-template <class ExecutionPolicy>
-std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy&& policy, const std::string_view raw_query, DocumentStatus status) const {
-    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::sequenced_policy>) {
-        return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
-            return document_status == status;
-        });
-    }
-    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>) {
-        return FindTopDocuments(policy, raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
-            return document_status == status;
-        });
-    }
-}
-
-template <class ExecutionPolicy>
-std::vector<Document> SearchServer::FindTopDocuments(ExecutionPolicy&& policy, const std::string_view raw_query) const {
-    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::sequenced_policy>) {
-        return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
-    }
-    if constexpr (std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>) {
-        return FindTopDocuments(policy, raw_query, DocumentStatus::ACTUAL);
-    }
-}
-
 void SearchServer::RemoveDocument(int document_id) {
     if (documents_.count(document_id)) {
         for (const auto& [word, frequency] : document_to_word_freqs_.at(document_id)) {
