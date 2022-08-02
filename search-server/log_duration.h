@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <string_view>
 
 #define PROFILE_CONCAT_INTERNAL(X, Y) X##Y
 #define PROFILE_CONCAT(X, Y) PROFILE_CONCAT_INTERNAL(X, Y)
@@ -22,6 +23,12 @@ public:
     }
     
     LogDuration(const std::string& id, std::ostream& output) : id_(id), output_(output){
+    }
+    
+    LogDuration(std::string_view id) : id_(id) {
+    }
+    
+    LogDuration(std::string_view id, std::ostream& output) : id_(id), output_(output){
     }
 
     ~LogDuration() {

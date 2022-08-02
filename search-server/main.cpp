@@ -11,6 +11,8 @@
 #include <optional>
 #include <stdexcept>
 #include <numeric>
+#include <execution>
+#include <string_view>
 
 #include "document.h"
 #include "read_input_functions.h"
@@ -21,8 +23,11 @@
 #include "test_example_functions.h"
 #include "log_duration.h"
 #include "remove_duplicates.h"
+#include "process_queries.h"
 
 using std::literals::string_literals::operator""s;
+
+using std::literals::string_view_literals::operator""sv;
 
 // ==================== для примера =========================
 
@@ -33,12 +38,12 @@ void PrintDocument(const Document& document) {
          << "rating = "s << document.rating << " }"s << std::endl;
 }
 
-void PrintMatchDocumentResult(int document_id, const std::vector<std::string>& words, DocumentStatus status) {
+void PrintMatchDocumentResult(int document_id, const std::vector<std::string_view>& words, DocumentStatus status) {
     std::cout << "{ "s
          << "document_id = "s << document_id << ", "s
          << "status = "s << static_cast<int>(status) << ", "s
          << "words ="s;
-    for (const std::string& word : words) {
+    for (const std::string_view word : words) {
         std::cout << ' ' << word;
     }
     std::cout << "}"s << std::endl;
@@ -76,6 +81,7 @@ void MatchDocuments(const SearchServer& search_server, const std::string& query)
         std::cout << "Ошибка матчинга документов на запрос "s << query << ": "s << e.what() << std::endl;
     }
 }
+    
 
 int main() {
     // тесты
@@ -126,7 +132,7 @@ int main() {
     request_queue.AddFindRequest("скворец"s);
     std::cout << "Всего пустых запросов: "s << request_queue.GetNoResultRequests() << std::endl;
     
-    //проверка удаления дубликатов 
+    //проверка удаления дубликатов с помощью RemoveDuplicates 
     std::cout << std::endl;
     AddDocument(search_server, 6, "пушистый кот пушистый пушистый хвост"s,   DocumentStatus::ACTUAL, {7, 2, 7});
     AddDocument(search_server, 7, "большой кот модный модный ошейник "s,   DocumentStatus::ACTUAL, {1, 2, 8});
@@ -135,4 +141,71 @@ int main() {
     RemoveDuplicates(search_server);
     std::cout << "После удаления дубликатов: "s << search_server.GetDocumentCount() << std::endl;
     
+    //проверка параллельных запросов 
+    std::cout << std::endl;
+    {
+    SearchServer search_server("and with"s);
+
+    int id = 0;
+    for (
+        const std::string& text : {
+            "funny pet and nasty rat"s,
+            "funny pet with curly hair"s,
+            "funny pet and not very nasty rat"s,
+            "pet with rat and rat and rat"s,
+            "nasty rat with curly hair"s,
+        }
+    ) {
+        search_server.AddDocument(++id, text, DocumentStatus::ACTUAL, {1, 2});
+    }
+
+    const std::vector<std::string> queries = {
+        "nasty rat -not"s,
+        "not very funny nasty pet"s,
+        "curly hair"s
+    };
+    id = 0;
+    for (
+        const auto& documents : ProcessQueries(search_server, queries)
+    ) {
+        std::cout << documents.size() << " documents for query ["s << queries[id++] << "]"s << std::endl;
+    }
+    }
+    //проверка параллельного и последовательного удаления документов 
+    {
+    std::cout << std::endl;
+    
+    SearchServer search_server("and with"s);
+
+    int id = 0;
+    for (
+        const std::string& text : {
+            "funny pet and nasty rat"s,
+            "funny pet with curly hair"s,
+            "funny pet and not very nasty rat"s,
+            "pet with rat and rat and rat"s,
+            "nasty rat with curly hair"s,
+        }
+    ) {
+        search_server.AddDocument(++id, text, DocumentStatus::ACTUAL, {1, 2});
+    }
+
+    const std::string query = "curly and funny"s;
+
+    auto report = [&search_server, &query] {
+        std::cout << search_server.GetDocumentCount() << " documents total, "s
+            << search_server.FindTopDocuments(query).size() << " documents for query ["s << query << "]"s << std::endl;
+    };
+
+    report();
+    // однопоточная версия
+    search_server.RemoveDocument(5);
+    report();
+    // однопоточная версия
+    search_server.RemoveDocument(std::execution::seq, 1);
+    report();
+    // многопоточная версия
+    search_server.RemoveDocument(std::execution::par, 2);
+    report();
+    }
 }  
