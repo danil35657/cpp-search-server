@@ -16,4 +16,3 @@ Next, run the executable file "server" on the command line.
 
 An example of using a search server (adding documents, searching by specified criteria, removing duplicates, etc.) is contained in the "main" file. If necessary, delete the lines with examples or comment out.
 
-
