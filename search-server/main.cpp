@@ -29,7 +29,7 @@ using std::literals::string_literals::operator""s;
 
 using std::literals::string_view_literals::operator""sv;
 
-// ==================== §´Ô Ø‡®¨•‡† =========================
+// ==================== –¥–ª—è –ø—Ä–∏–º–µ—Ä–∞ =========================
 
 void PrintDocument(const Document& document) {
     std::cout << "{ "s
@@ -53,95 +53,95 @@ void AddDocument(SearchServer& search_server, int document_id, const std::string
     try {
         search_server.AddDocument(document_id, document, status, ratings);
     } catch (const std::exception& e) {
-        std::cout << "éË®°™† §Æ°†¢´•≠®Ô §Æ™„¨•≠‚† "s << document_id << ": "s << e.what() << std::endl;
+        std::cout << "–û—à–∏–±–∫–∞ –¥–æ–±–∞–≤–ª–µ–Ω–∏—è –¥–æ–∫—É–º–µ–Ω—Ç–∞ "s << document_id << ": "s << e.what() << std::endl;
     }
 }
 
 void FindTopDocuments(const SearchServer& search_server, const std::string& raw_query) {
     LOG_DURATION_STREAM("Operation time"s, std::cout);
-    std::cout << "ê•ß„´Ï‚†‚Î ØÆ®·™† ØÆ ß†Ø‡Æ·„: "s << raw_query << std::endl;
+    std::cout << "–†–µ–∑—É–ª—å—Ç–∞—Ç—ã –ø–æ–∏—Å–∫–∞ –ø–æ –∑–∞–ø—Ä–æ—Å—É: "s << raw_query << std::endl;
     try {
         for (const Document& document : search_server.FindTopDocuments(raw_query)) {
             PrintDocument(document);
         }
     } catch (const std::exception& e) {
-        std::cout << "éË®°™† ØÆ®·™†: "s << e.what() << std::endl;
+        std::cout << "–û—à–∏–±–∫–∞ –ø–æ–∏—Å–∫–∞: "s << e.what() << std::endl;
     }
 }
 
 void MatchDocuments(const SearchServer& search_server, const std::string& query) {
     LOG_DURATION_STREAM("Operation time"s, std::cout);
     try {
-        std::cout << "å†‚Á®≠£ §Æ™„¨•≠‚Æ¢ ØÆ ß†Ø‡Æ·„: "s << query << std::endl;
+        std::cout << "–ú–∞—Ç—á–∏–Ω–≥ –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ –ø–æ –∑–∞–ø—Ä–æ—Å—É: "s << query << std::endl;
         for (const int document_id : search_server) {
             const auto [words, status] = search_server.MatchDocument(query, document_id);
             PrintMatchDocumentResult(document_id, words, status);
         }
     } catch (const std::exception& e) {
-        std::cout << "éË®°™† ¨†‚Á®≠£† §Æ™„¨•≠‚Æ¢ ≠† ß†Ø‡Æ· "s << query << ": "s << e.what() << std::endl;
+        std::cout << "–û—à–∏–±–∫–∞ –º–∞—Ç—á–∏–Ω–≥–∞ –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ –Ω–∞ –∑–∞–ø—Ä–æ—Å "s << query << ": "s << e.what() << std::endl;
     }
 }
     
 
 int main() {
-    // ‚•·‚Î
+    // —Ç–µ—Å—Ç—ã
     TestSearchServer();
     
-    // Ø‡Æ¢•‡™† Æ·≠Æ¢≠ÎÂ ¨•‚Æ§Æ¢ SearchServer
-    SearchServer search_server("® ¢ ≠†"s);
+    // –ø—Ä–æ–≤–µ—Ä–∫–∞ –æ—Å–Ω–æ–≤–Ω—ã—Ö –º–µ—Ç–æ–¥–æ–≤ SearchServer
+    SearchServer search_server("–∏ –≤ –Ω–∞"s);
 
-    AddDocument(search_server,  1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,     DocumentStatus::ACTUAL, {7, 2, 7});
-    AddDocument(search_server,  1, "Ø„Ë®·‚Î© ØÒ· ® ¨Æ§≠Î© ÆË•©≠®™"s,   DocumentStatus::ACTUAL, {1, 2});
-    AddDocument(search_server, -1, "Ø„Ë®·‚Î© ØÒ· ® ¨Æ§≠Î© ÆË•©≠®™"s,   DocumentStatus::ACTUAL, {1, 2});
-    AddDocument(search_server,  3, "°Æ´ÏËÆ© ØÒ· ·™¢Æ\x12‡•Ê •¢£•≠®©"s, DocumentStatus::ACTUAL, {1, 3, 2});
-    AddDocument(search_server,  4, "°Æ´ÏËÆ© ØÒ· ·™¢Æ‡•Ê •¢£•≠®©"s,     DocumentStatus::ACTUAL, {1, 1, 1});
+    AddDocument(search_server,  1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,     DocumentStatus::ACTUAL, {7, 2, 7});
+    AddDocument(search_server,  1, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,   DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, -1, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,   DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server,  3, "–±–æ–ª—å—à–æ–π –ø—ë—Å —Å–∫–≤–æ\x12—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s, DocumentStatus::ACTUAL, {1, 3, 2});
+    AddDocument(search_server,  4, "–±–æ–ª—å—à–æ–π –ø—ë—Å —Å–∫–≤–æ—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s,     DocumentStatus::ACTUAL, {1, 1, 1});
 
-    FindTopDocuments(search_server, "Ø„Ë®·‚Î© -ØÒ·"s);
-    FindTopDocuments(search_server, "Ø„Ë®·‚Î© --™Æ‚"s);
-    FindTopDocuments(search_server, "Ø„Ë®·‚Î© -"s);
+    FindTopDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π -–ø—ë—Å"s);
+    FindTopDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π --–∫–æ—Ç"s);
+    FindTopDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π -"s);
 
-    MatchDocuments(search_server, "Ø„Ë®·‚Î© ØÒ·"s);
-    MatchDocuments(search_server, "¨Æ§≠Î© -™Æ‚"s);
-    MatchDocuments(search_server, "¨Æ§≠Î© --ØÒ·"s);
-    MatchDocuments(search_server, "Ø„Ë®·‚Î© - Â¢Æ·‚"s);
+    MatchDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å"s);
+    MatchDocuments(search_server, "–º–æ–¥–Ω—ã–π -–∫–æ—Ç"s);
+    MatchDocuments(search_server, "–º–æ–¥–Ω—ã–π --–ø—ë—Å"s);
+    MatchDocuments(search_server, "–ø—É—à–∏—Å—Ç—ã–π - —Ö–≤–æ—Å—Ç"s);
     
-    // Ø‡Æ¢•‡™† ¢Î¢Æ§† ·‚‡†≠®Ê†¨®
+    // –ø—Ä–æ–≤–µ—Ä–∫–∞ –≤—ã–≤–æ–¥–∞ —Å—Ç—Ä–∞–Ω–∏—Ü–∞–º–∏
     std::cout << std::endl;
-    AddDocument(search_server, 2, "Ø„Ë®·‚Î© ØÒ· ® ¨Æ§≠Î© ÆË•©≠®™"s, DocumentStatus::ACTUAL, {1, 2, 3});
-    AddDocument(search_server, 3, "°Æ´ÏËÆ© ™Æ‚ ¨Æ§≠Î© ÆË•©≠®™ "s,   DocumentStatus::ACTUAL, {1, 2, 8});
-    AddDocument(search_server, 5, "°Æ´ÏËÆ© ØÒ· ·™¢Æ‡•Ê ¢†·®´®©"s,   DocumentStatus::ACTUAL, {1, 1, 1});
+    AddDocument(search_server, 2, "–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s, DocumentStatus::ACTUAL, {1, 2, 3});
+    AddDocument(search_server, 3, "–±–æ–ª—å—à–æ–π –∫–æ—Ç –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫ "s,   DocumentStatus::ACTUAL, {1, 2, 8});
+    AddDocument(search_server, 5, "–±–æ–ª—å—à–æ–π –ø—ë—Å —Å–∫–≤–æ—Ä–µ—Ü –≤–∞—Å–∏–ª–∏–π"s,   DocumentStatus::ACTUAL, {1, 1, 1});
     
-    const auto search_results = search_server.FindTopDocuments("Ø„Ë®·‚Î© ØÒ·"s);
+    const auto search_results = search_server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å"s);
     int page_size = 2;
     const auto pages = Paginate(search_results, page_size);
 
     for (auto page = pages.begin(); page != pages.end(); ++page) {
         std::cout << *page << std::endl;
-        std::cout << "ê†ß‡Î¢ ·‚‡†≠®ÊÎ"s << std::endl;
+        std::cout << "–†–∞–∑—Ä—ã–≤ —Å—Ç—Ä–∞–Ω–∏—Ü—ã"s << std::endl;
     }
 
-    //Ø‡Æ¢•‡™† ÆÁ•‡•§® ß†Ø‡Æ·Æ¢
+    //–ø—Ä–æ–≤–µ—Ä–∫–∞ –æ—á–µ—Ä–µ–¥–∏ –∑–∞–ø—Ä–æ—Å–æ–≤
     std::cout << std::endl;
     RequestQueue request_queue(search_server);
     for (int i = 0; i < 1439; ++i) {
-        request_queue.AddFindRequest("Ø„·‚Æ© ß†Ø‡Æ·"s);
+        request_queue.AddFindRequest("–ø—É—Å—Ç–æ–π –∑–∞–ø—Ä–æ—Å"s);
     }
     
-    request_queue.AddFindRequest("Ø„Ë®·‚Î© ØÒ·"s);
-    request_queue.AddFindRequest("°Æ´ÏËÆ© ÆË•©≠®™"s);
-    request_queue.AddFindRequest("·™¢Æ‡•Ê"s);
-    std::cout << "Ç·•£Æ Ø„·‚ÎÂ ß†Ø‡Æ·Æ¢: "s << request_queue.GetNoResultRequests() << std::endl;
+    request_queue.AddFindRequest("–ø—É—à–∏—Å—Ç—ã–π –ø—ë—Å"s);
+    request_queue.AddFindRequest("–±–æ–ª—å—à–æ–π –æ—à–µ–π–Ω–∏–∫"s);
+    request_queue.AddFindRequest("—Å–∫–≤–æ—Ä–µ—Ü"s);
+    std::cout << "–í—Å–µ–≥–æ –ø—É—Å—Ç—ã—Ö –∑–∞–ø—Ä–æ—Å–æ–≤: "s << request_queue.GetNoResultRequests() << std::endl;
     
-    //Ø‡Æ¢•‡™† „§†´•≠®Ô §„°´®™†‚Æ¢ · ØÆ¨ÆÈÏÓ RemoveDuplicates 
+    //–ø—Ä–æ–≤–µ—Ä–∫–∞ —É–¥–∞–ª–µ–Ω–∏—è –¥—É–±–ª–∏–∫–∞—Ç–æ–≤ —Å –ø–æ–º–æ—â—å—é RemoveDuplicates 
     std::cout << std::endl;
-    AddDocument(search_server, 6, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Ø„Ë®·‚Î© Â¢Æ·‚"s,   DocumentStatus::ACTUAL, {7, 2, 7});
-    AddDocument(search_server, 7, "°Æ´ÏËÆ© ™Æ‚ ¨Æ§≠Î© ¨Æ§≠Î© ÆË•©≠®™ "s,   DocumentStatus::ACTUAL, {1, 2, 8});
-    AddDocument(search_server, 8, "°Æ´ÏËÆ© ØÒ· ·™¢Æ‡•Ê ¢†·®´®©"s,   DocumentStatus::ACTUAL, {1, 1, 1});
-    std::cout << "ÑÆ „§†´•≠®Ô §„°´®™†‚Æ¢: "s << search_server.GetDocumentCount() << std::endl;
+    AddDocument(search_server, 6, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,   DocumentStatus::ACTUAL, {7, 2, 7});
+    AddDocument(search_server, 7, "–±–æ–ª—å—à–æ–π –∫–æ—Ç –º–æ–¥–Ω—ã–π –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫ "s,   DocumentStatus::ACTUAL, {1, 2, 8});
+    AddDocument(search_server, 8, "–±–æ–ª—å—à–æ–π –ø—ë—Å —Å–∫–≤–æ—Ä–µ—Ü –≤–∞—Å–∏–ª–∏–π"s,   DocumentStatus::ACTUAL, {1, 1, 1});
+    std::cout << "–î–æ —É–¥–∞–ª–µ–Ω–∏—è –¥—É–±–ª–∏–∫–∞—Ç–æ–≤: "s << search_server.GetDocumentCount() << std::endl;
     RemoveDuplicates(search_server);
-    std::cout << "èÆ·´• „§†´•≠®Ô §„°´®™†‚Æ¢: "s << search_server.GetDocumentCount() << std::endl;
+    std::cout << "–ü–æ—Å–ª–µ —É–¥–∞–ª–µ–Ω–∏—è –¥—É–±–ª–∏–∫–∞—Ç–æ–≤: "s << search_server.GetDocumentCount() << std::endl;
     
-    //Ø‡Æ¢•‡™† Ø†‡†´´•´Ï≠ÎÂ ß†Ø‡Æ·Æ¢ 
+    //–ø—Ä–æ–≤–µ—Ä–∫–∞ –ø–∞—Ä–∞–ª–ª–µ–ª—å–Ω—ã—Ö –∑–∞–ø—Ä–æ—Å–æ–≤ 
     std::cout << std::endl;
     {
     SearchServer search_server("and with"s);
@@ -171,7 +171,7 @@ int main() {
         std::cout << documents.size() << " documents for query ["s << queries[id++] << "]"s << std::endl;
     }
     }
-    //Ø‡Æ¢•‡™† Ø†‡†´´•´Ï≠Æ£Æ ® ØÆ·´•§Æ¢†‚•´Ï≠Æ£Æ „§†´•≠®Ô §Æ™„¨•≠‚Æ¢ 
+    //–ø—Ä–æ–≤–µ—Ä–∫–∞ –ø–∞—Ä–∞–ª–ª–µ–ª—å–Ω–æ–≥–æ –∏ –ø–æ—Å–ª–µ–¥–æ–≤–∞—Ç–µ–ª—å–Ω–æ–≥–æ —É–¥–∞–ª–µ–Ω–∏—è –¥–æ–∫—É–º–µ–Ω—Ç–æ–≤ 
     {
     std::cout << std::endl;
     
@@ -198,18 +198,18 @@ int main() {
     };
 
     report();
-    // Æ§≠ÆØÆ‚ÆÁ≠†Ô ¢•‡·®Ô
+    // –æ–¥–Ω–æ–ø–æ—Ç–æ—á–Ω–∞—è –≤–µ—Ä—Å–∏—è
     search_server.RemoveDocument(5);
     report();
-    // Æ§≠ÆØÆ‚ÆÁ≠†Ô ¢•‡·®Ô
+    // –æ–¥–Ω–æ–ø–æ—Ç–æ—á–Ω–∞—è –≤–µ—Ä—Å–∏—è
     search_server.RemoveDocument(std::execution::seq, 1);
     report();
-    // ¨≠Æ£ÆØÆ‚ÆÁ≠†Ô ¢•‡·®Ô
+    // –º–Ω–æ–≥–æ–ø–æ—Ç–æ—á–Ω–∞—è –≤–µ—Ä—Å–∏—è
     search_server.RemoveDocument(std::execution::par, 2);
     report();
     }
     
-    // Ø‡Æ¢•‡™† Ø†‡†´´•´Ï≠ÎÂ ß†Ø‡Æ·Æ¢
+    // –ø—Ä–æ–≤–µ—Ä–∫–∞ –ø–∞—Ä–∞–ª–ª–µ–ª—å–Ω—ã—Ö –∑–∞–ø—Ä–æ—Å–æ–≤
     {
     using namespace std;
         
@@ -229,18 +229,18 @@ int main() {
 
 
     cout << "ACTUAL by default:"s << endl;
-    // ØÆ·´•§Æ¢†‚•´Ï≠†Ô ¢•‡·®Ô
+    // –ø–æ—Å–ª–µ–¥–æ–≤–∞—Ç–µ–ª—å–Ω–∞—è –≤–µ—Ä—Å–∏—è
     for (const Document& document : search_server.FindTopDocuments("curly nasty cat"s)) {
         PrintDocument(document);
     }
     cout << "BANNED:"s << endl;
-    // ØÆ·´•§Æ¢†‚•´Ï≠†Ô ¢•‡·®Ô
+    // –ø–æ—Å–ª–µ–¥–æ–≤–∞—Ç–µ–ª—å–Ω–∞—è –≤–µ—Ä—Å–∏—è
     for (const Document& document : search_server.FindTopDocuments(execution::seq, "curly nasty cat"s, DocumentStatus::BANNED)) {
         PrintDocument(document);
     }
 
     cout << "Even ids:"s << endl;
-    // Ø†‡†´´•´Ï≠†Ô ¢•‡·®Ô
+    // –ø–∞—Ä–∞–ª–ª–µ–ª—å–Ω–∞—è –≤–µ—Ä—Å–∏—è
     for (const Document& document : search_server.FindTopDocuments(execution::par, "curly nasty cat"s, [](int document_id, DocumentStatus status, int rating) { return document_id % 2 == 0; })) {
         PrintDocument(document);
     }

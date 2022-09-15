@@ -17,7 +17,7 @@ std::set<std::string, std::less<>> MakeUniqueNonEmptyStrings(const StringContain
     std::set<std::string, std::less<>> non_empty_strings;
     for (const auto& str : strings) {
         if (!IsValidWord(str)) {
-            throw std::invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§: "s + std::string(str));
+            throw std::invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥: "s + std::string(str));
         }
         if (!str.empty()) {
             non_empty_strings.insert(std::string(str));

@@ -13,17 +13,17 @@ void AssertImpl(bool value, const std::string& expr_str, const std::string& file
 }
 
 void TestAddAndFindDocument() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
     {
-    std::vector<Document> v = server.FindTopDocuments("Ø„Ë®·‚Î©"s);
+    std::vector<Document> v = server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π"s);
     ASSERT_EQUAL(v.size(), 1);
     ASSERT_EQUAL(v[0].id, 1);
     ASSERT_EQUAL(v[0].rating, 5);
     }
     {
-    std::vector<Document> v = server.FindTopDocuments("™Æ‚"s);
+    std::vector<Document> v = server.FindTopDocuments("–∫–æ—Ç"s);
     ASSERT_EQUAL(v.size(), 2);
     ASSERT_EQUAL(v[0].rating, 5);
     ASSERT_EQUAL(v[1].rating, 3);
@@ -31,81 +31,81 @@ void TestAddAndFindDocument() {
 }
 
 void TestExclusionOfStopWords() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
     ASSERT_HINT(server.FindTopDocuments("in"s).empty(), "Stop words must be excluded from documents"s);
 }
 
 void TestSupportForMinusWords() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
-    std::vector<Document> v = server.FindTopDocuments("™Æ‚ -°•´Î©"s);
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    std::vector<Document> v = server.FindTopDocuments("–∫–æ—Ç -–±–µ–ª—ã–π"s);
     ASSERT_EQUAL(v.size(), 1);
     ASSERT_EQUAL(v[0].id, 1);
     ASSERT_EQUAL(v[0].rating, 5);
 }
 
 void TestSortByRelevance() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
-    std::vector<Document> v = server.FindTopDocuments("Ø„Ë®·‚Î© ™Æ‚"s);
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    std::vector<Document> v = server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç"s);
     ASSERT_EQUAL(v.size(), 2);
     ASSERT(v[1].relevance <= v[0].relevance);
     ASSERT_EQUAL(v[1].id, 0);
 }
 
 void TestComputeRating() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,        DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,       DocumentStatus::ACTUAL, {7, 2, 6});
-    std::vector<Document> v = server.FindTopDocuments("™Æ‚"s);
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,        DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,       DocumentStatus::ACTUAL, {7, 2, 6});
+    std::vector<Document> v = server.FindTopDocuments("–∫–æ—Ç"s);
     ASSERT_EQUAL(v[0].rating, 5);
     ASSERT_EQUAL(v[1].rating, 3);
 }
 
 void TestFilteringByPredicate() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,      DocumentStatus::ACTUAL, {7, 2, 6});
-    std::vector<Document> v = server.FindTopDocuments("™Æ‚"s, [](int, DocumentStatus, int rating) {
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,      DocumentStatus::ACTUAL, {7, 2, 6});
+    std::vector<Document> v = server.FindTopDocuments("–∫–æ—Ç"s, [](int, DocumentStatus, int rating) {
         return rating >= 4; });
     ASSERT_EQUAL(v.size(), 1);
     ASSERT_EQUAL(v[0].id, 1);
 }
 
 void TestSearchByStatus() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::ACTUAL, {8, -2});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,      DocumentStatus::ACTUAL, {7, 2, 6});
-    server.AddDocument(2, "·•‡Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::BANNED, {8, -3});
-    server.AddDocument(3, "°•´Î© Ø•· Á•‡≠Î© Â¢Æ·‚"s,           DocumentStatus::BANNED, {7, 2, 7});
-    server.AddDocument(4, "„ÂÆ¶•≠≠Î© ™Æ‚ ¢Î‡†ß®‚•´Ï≠Î• £´†ß†"s,DocumentStatus::BANNED, {5, -12, 2, 1});
-    server.AddDocument(5, "„ÂÆ¶•≠≠Î© ·™¢Æ‡•Ê •¢£•≠®©"s,        DocumentStatus::IRRELEVANT, {9});
-    server.AddDocument(6, "„ÂÆ¶•≠≠Î© Ø•· ¢Î‡†ß®‚•´Ï≠Î• £´†ß†"s,DocumentStatus::REMOVED, {5, -1, 2, 1});
-    server.AddDocument(7, "„ÂÆ¶•≠≠Î© ·™¢Æ‡•Ê £•≠≠†§®©"s,       DocumentStatus::REMOVED, {6});
-    std::vector<Document> a = server.FindTopDocuments("™Æ‚"s, DocumentStatus::ACTUAL);
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::ACTUAL, {8, -2});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,      DocumentStatus::ACTUAL, {7, 2, 6});
+    server.AddDocument(2, "—Å–µ—Ä—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::BANNED, {8, -3});
+    server.AddDocument(3, "–±–µ–ª—ã–π –ø–µ—Å —á–µ—Ä–Ω—ã–π —Ö–≤–æ—Å—Ç"s,           DocumentStatus::BANNED, {7, 2, 7});
+    server.AddDocument(4, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π –∫–æ—Ç –≤—ã—Ä–∞–∑–∏—Ç–µ–ª—å–Ω—ã–µ –≥–ª–∞–∑–∞"s,DocumentStatus::BANNED, {5, -12, 2, 1});
+    server.AddDocument(5, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π —Å–∫–≤–æ—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s,        DocumentStatus::IRRELEVANT, {9});
+    server.AddDocument(6, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π –ø–µ—Å –≤—ã—Ä–∞–∑–∏—Ç–µ–ª—å–Ω—ã–µ –≥–ª–∞–∑–∞"s,DocumentStatus::REMOVED, {5, -1, 2, 1});
+    server.AddDocument(7, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π —Å–∫–≤–æ—Ä–µ—Ü –≥–µ–Ω–Ω–∞–¥–∏–π"s,       DocumentStatus::REMOVED, {6});
+    std::vector<Document> a = server.FindTopDocuments("–∫–æ—Ç"s, DocumentStatus::ACTUAL);
     ASSERT_EQUAL(a.size(), 2);
     ASSERT_EQUAL(a[0].id, 1);
-    std::vector<Document> b = server.FindTopDocuments("™Æ‚"s, DocumentStatus::BANNED);
+    std::vector<Document> b = server.FindTopDocuments("–∫–æ—Ç"s, DocumentStatus::BANNED);
     ASSERT_EQUAL(b.size(), 2);
     ASSERT_EQUAL(b[0].id, 2);
-    std::vector<Document> i = server.FindTopDocuments("·™¢Æ‡•Ê"s, DocumentStatus::IRRELEVANT);
+    std::vector<Document> i = server.FindTopDocuments("—Å–∫–≤–æ—Ä–µ—Ü"s, DocumentStatus::IRRELEVANT);
     ASSERT_EQUAL(i.size(), 1);
     ASSERT_EQUAL(i[0].id, 5);
-    std::vector<Document> r = server.FindTopDocuments("Ø•·"s, DocumentStatus::REMOVED);
+    std::vector<Document> r = server.FindTopDocuments("–ø–µ—Å"s, DocumentStatus::REMOVED);
     ASSERT_EQUAL(r.size(), 1);
     ASSERT_EQUAL(r[0].id, 6);
 }
 
 void TestCalculatingRelevance() {
-    SearchServer server("® ¢ ≠†"s);
-    server.AddDocument(0, "°•´Î© ™Æ‚ ® ¨Æ§≠Î© ÆË•©≠®™"s,       DocumentStatus::ACTUAL, {8, -3});
-    server.AddDocument(1, "Ø„Ë®·‚Î© ™Æ‚ Ø„Ë®·‚Î© Â¢Æ·‚"s,      DocumentStatus::ACTUAL, {7, 2, 7});
-    server.AddDocument(2, "„ÂÆ¶•≠≠Î© ØÒ· ¢Î‡†ß®‚•´Ï≠Î• £´†ß†"s,DocumentStatus::ACTUAL, {5, -12, 2, 1});
-    server.AddDocument(3, "„ÂÆ¶•≠≠Î© ·™¢Æ‡•Ê •¢£•≠®©"s,        DocumentStatus::BANNED, {9});
-    std::vector<Document> v = server.FindTopDocuments("Ø„Ë®·‚Î© „ÂÆ¶•≠≠Î© ™Æ‚"s);
+    SearchServer server("–∏ –≤ –Ω–∞"s);
+    server.AddDocument(0, "–±–µ–ª—ã–π –∫–æ—Ç –∏ –º–æ–¥–Ω—ã–π –æ—à–µ–π–Ω–∏–∫"s,       DocumentStatus::ACTUAL, {8, -3});
+    server.AddDocument(1, "–ø—É—à–∏—Å—Ç—ã–π –∫–æ—Ç –ø—É—à–∏—Å—Ç—ã–π —Ö–≤–æ—Å—Ç"s,      DocumentStatus::ACTUAL, {7, 2, 7});
+    server.AddDocument(2, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π –ø—ë—Å –≤—ã—Ä–∞–∑–∏—Ç–µ–ª—å–Ω—ã–µ –≥–ª–∞–∑–∞"s,DocumentStatus::ACTUAL, {5, -12, 2, 1});
+    server.AddDocument(3, "—É—Ö–æ–∂–µ–Ω–Ω—ã–π —Å–∫–≤–æ—Ä–µ—Ü –µ–≤–≥–µ–Ω–∏–π"s,        DocumentStatus::BANNED, {9});
+    std::vector<Document> v = server.FindTopDocuments("–ø—É—à–∏—Å—Ç—ã–π —É—Ö–æ–∂–µ–Ω–Ω—ã–π –∫–æ—Ç"s);
     ASSERT(std::abs(v[0].relevance - 0.866434) < EPSILON);
     ASSERT(std::abs(v[1].relevance - 0.173287) < EPSILON);
 }

@@ -8,13 +8,13 @@ SearchServer::SearchServer(const std::string_view stop_words_text) : SearchServe
         
 void SearchServer::AddDocument (int document_id, const std::string_view document, DocumentStatus status, const std::vector<int>& ratings) {
     if (document_id < 0) {
-        throw std::invalid_argument("ID ≠• ¨Æ¶•‚ °Î‚Ï Æ‚‡®Ê†‚•´Ï≠Î¨"s);
+        throw std::invalid_argument("ID –Ω–µ –º–æ–∂–µ—Ç –±—ã—Ç—å –æ—Ç—Ä–∏—Ü–∞—Ç–µ–ª—å–Ω—ã–º"s);
     }
     if (documents_.count(document_id)) {
-        throw std::invalid_argument("§Æ™„¨•≠‚ · ‚†™®¨ ID „¶• •·‚Ï"s);
+        throw std::invalid_argument("–¥–æ–∫—É–º–µ–Ω—Ç —Å —Ç–∞–∫–∏–º ID —É–∂–µ –µ—Å—Ç—å"s);
     }
     if (!IsValidWord(document)) {
-        throw std::invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§"s);
+        throw std::invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥"s);
     }
     const std::vector<std::string_view> words = SplitIntoWordsNoStop(document);
     const double inv_word_count = 1.0 / words.size();
@@ -93,7 +93,7 @@ using matching_result = std::tuple<std::vector<std::string_view>, DocumentStatus
 matching_result SearchServer::MatchDocument(const std::string_view raw_query, int document_id) const {
     
     if (!documents_.count(document_id)) {
-        throw std::out_of_range("ç•‚ ‚†™Æ£Æ §Æ™„¨•≠‚†"s);
+        throw std::out_of_range("–ù–µ—Ç —Ç–∞–∫–æ–≥–æ –¥–æ–∫—É–º–µ–Ω—Ç–∞"s);
     }
     
     const Query query = ParseQuery(raw_query, true);
@@ -124,7 +124,7 @@ matching_result SearchServer::MatchDocument(std::execution::sequenced_policy pol
 matching_result SearchServer::MatchDocument(std::execution::parallel_policy policy, const std::string_view raw_query, int document_id) const {
     
     if (!documents_.count(document_id)) {
-        throw std::out_of_range("ç•‚ ‚†™Æ£Æ §Æ™„¨•≠‚†"s);
+        throw std::out_of_range("–ù–µ—Ç —Ç–∞–∫–æ–≥–æ –¥–æ–∫—É–º–µ–Ω—Ç–∞"s);
     }
     
     const Query query = ParseQuery(raw_query, false);
@@ -139,7 +139,7 @@ matching_result SearchServer::MatchDocument(std::execution::parallel_policy poli
         if (document_to_word_freqs_.at(document_id).count(word)) {
             return {words, status};
         }
-    } // ß§•·Ï Ì‚Æ ‡†°Æ‚†•‚ °Î·‚‡•• Á•¨ †´£Æ‡®‚¨Î ‚®Ø† any_of · execution::par
+    } // –∑–¥–µ—Å—å —ç—Ç–æ —Ä–∞–±–æ—Ç–∞–µ—Ç –±—ã—Å—Ç—Ä–µ–µ —á–µ–º –∞–ª–≥–æ—Ä–∏—Ç–º—ã —Ç–∏–ø–∞ any_of —Å execution::par
     
     std::vector<std::string_view> matched_words(query.plus_words.size());
     auto words_end = std::copy_if(policy, query.plus_words.begin(), query.plus_words.end(), matched_words.begin(), word_check);
@@ -180,14 +180,14 @@ int SearchServer::ComputeAverageRating(const std::vector<int>& ratings) {
 SearchServer::QueryWord SearchServer::ParseQueryWord(std::string_view text) const {
     bool is_minus = false;
     if (!IsValidWord(text)) {
-        throw std::invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§: "s + std::string(text));
+        throw std::invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥: "s + std::string(text));
     }
     if (text[0] == '-') {
         is_minus = true;
         text.remove_prefix(1);
     }
     if (text[0] == '-' || text.empty()) {
-        throw std::invalid_argument("ç•™Æ‡‡•™‚≠Î© ¢¢Æ§"s);
+        throw std::invalid_argument("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω—ã–π –≤–≤–æ–¥"s);
     }
     return {text, is_minus, IsStopWord(text)};
 }
