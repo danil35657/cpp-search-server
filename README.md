@@ -16,3 +16,20 @@ Next, run the executable file "server" on the command line.
 
 An example of using a search server (adding documents, searching by specified criteria, removing duplicates, etc.) is contained in the "main" file. If necessary, delete the lines with examples or comment out.
 
+## System requirements
+
+1. GCC version at least 11.2.0 (or another C++ compiler).
+
+2. The C++17 standard.
+
+## Plans for completion
+
+1. Create a graphical interface
+
+2. Implement parsing of websites on the Internet
+
+## Technology stack
+
+1. GCC 11.2.0
+
+2. C++17 (STL)
